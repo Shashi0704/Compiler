@@ -1,7 +1,10 @@
 #include <iostream>
-#include <cstring>
+#include <fstream>
 #include <vector>
-#include <algorithm>
+#include <set>
+#include <cctype>
+#include <string>
+
 using namespace std;
 
 enum TokenType
@@ -61,13 +64,14 @@ set<string> directives = {
 
 };
 
-set<string> symbols = {
-    "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", ">=",
-    ",", ":", ";", "(", ")", "[", "]",
-    ".", "$", "@", "?", "#", "!",
-    "&", "|", "^",
-    "<<", ">>",
-    "'", "\"", "~"};
+set<char> singleSymbols = {
+    '+', '-', '*', '/', '%', '=', '<', '>',
+    ',', ':', '(', ')', '[', ']',
+    '.', '$', '@', '?', '#', '!',
+    '&', '|', '^', '\'', '"', '~'};
+
+set<string> multiSymbols = {
+    "==", "!=", "<=", ">=", "<<", ">>"};
 
 // helper function
 
@@ -117,10 +121,10 @@ vector<Token> lexer(const string &filename)
       }
 
       // identifier / keyword
-      if (isalpha(line[i]) || line[i] == '_')
+      if (isalpha(line[i]) || line[i] == '_' || line[i] == '.')
       {
         string word;
-        while (i < n && (isalnum(line[i]) || line[i] == '_'))
+        while (i < n && (isalnum(line[i]) || line[i] == '_' || line[i] == '.'))
           word += line[i++];
 
         word = toUpper(word);
@@ -133,31 +137,52 @@ vector<Token> lexer(const string &filename)
           tokens.push_back({DIRECTIVE, word});
         else
           tokens.push_back({IDENTIFIER, word});
+
+        continue;
       }
 
       // number
-      else if (isdigit(line[i]))
+      if (isdigit(line[i]))
       {
         string num;
         while (i < n && isalnum(line[i]))
           num += line[i++];
         tokens.push_back({NUMBER, num});
+        continue;
       }
 
-      // symbol
-      else if (symbols.count(line[i]))
+      // multi-character symbol first
+      if (i + 1 < n)
+      {
+        string two = line.substr(i, 2);
+        if (multiSymbols.count(two))
+        {
+          tokens.push_back({SYMBOL, two});
+          i += 2;
+          continue;
+        }
+      }
+
+      // singleSymbols
+      if (singleSymbols.count(line[i]))
       {
         tokens.push_back({SYMBOL, string(1, line[i])});
         i++;
       }
-
-      else
-      {
-        i++;
-      }
+      i++;
     }
   }
 
   fin.close();
   return tokens;
+}
+// main function for exection
+int main()
+{
+  vector<Token> tokens = lexer("test.asm");
+
+  for (auto &t : tokens)
+    cout << tokenTypeToString(t.type) << " -> " << t.value << endl;
+
+  return 0;
 }
