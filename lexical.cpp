@@ -176,7 +176,7 @@ vector<Token> lexer(const string &filename)
   fin.close();
   return tokens;
 }
-// main function for exection
+// main function for execution
 int main()
 {
   vector<Token> tokens = lexer("test.asm");
