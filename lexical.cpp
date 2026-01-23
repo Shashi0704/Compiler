@@ -1,3 +1,4 @@
+#include "common.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -256,25 +257,4 @@ vector<Symbol> buildSymbolTable(const vector<Token> &tokens)
   return table;
 }
 
-// main function for execution
-int main()
-{
-  vector<Token> tokens = lexer("test.asm");
 
-  cout << "TOKENS\n";
-  for (auto &t : tokens)
-    cout << tokenTypeToString(t.type) << " -> " << t.value << endl;
-
-  cout << "\nSYMBOL TABLE\n";
-  vector<Symbol> symtab = buildSymbolTable(tokens);
-
-  for (auto &s : symtab)
-  {
-    cout << s.name << "\t"
-         << symbolTypeToString(s.type) << "\t"
-         << "ADDR=" << s.address << "\t"
-         << "SIZE=" << s.size << endl;
-  }
-
-  return 0;
-}
