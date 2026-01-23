@@ -177,16 +177,104 @@ vector<Token> lexer(const string &filename)
   return tokens;
 }
 
+// Symbol table code
+
+enum SymbolType
+{
+  VAR,
+  LABEL,
+  PROC
+};
+
+string symbolTypeToString(SymbolType t)
+{
+  switch (t)
+  {
+  case VAR:
+    return "VARIABLE";
+  case LABEL:
+    return "LABEL";
+  case PROC:
+    return "PROCEDURE";
+  }
+  return "UNKNOWN";
+}
+
+struct Symbol
+{
+  string name;
+  SymbolType type;
+  int address;
+  int size;
+};
+// function of symbol table
+vector<Symbol> buildSymbolTable(const vector<Token> &tokens)
+{
+  vector<Symbol> table;
+  int LC = 0; // Location Counter
+
+  for (size_t i = 0; i < tokens.size(); i++)
+  {
+    // LABEL → identifier :
+    if (tokens[i].type == IDENTIFIER &&
+        i + 1 < tokens.size() &&
+        tokens[i + 1].value == ":")
+    {
+      table.push_back({tokens[i].value, LABEL, LC, 0});
+    }
+
+    // VARIABLE → identifier DB/DW/DD
+    if (tokens[i].type == IDENTIFIER &&
+        i + 1 < tokens.size() &&
+        tokens[i + 1].type == DIRECTIVE)
+    {
+      int size = 0;
+
+      if (tokens[i + 1].value == "DB")
+        size = 1;
+      else if (tokens[i + 1].value == "DW")
+        size = 2;
+      else if (tokens[i + 1].value == "DD")
+        size = 4;
+
+      if (size > 0)
+      {
+        table.push_back({tokens[i].value, VAR, LC, size});
+        LC += size;
+      }
+    }
+
+    // PROC
+    if (tokens[i].type == IDENTIFIER &&
+        i + 1 < tokens.size() &&
+        tokens[i + 1].value == "PROC")
+    {
+      table.push_back({tokens[i].value, PROC, LC, 0});
+    }
+  }
+
+  return table;
+}
 
 // main function for execution
-/*
 int main()
 {
   vector<Token> tokens = lexer("test.asm");
 
+  cout << "TOKENS\n";
   for (auto &t : tokens)
     cout << tokenTypeToString(t.type) << " -> " << t.value << endl;
 
+  cout << "\nSYMBOL TABLE\n";
+  vector<Symbol> symtab = buildSymbolTable(tokens);
+
+  for (auto &s : symtab)
+  {
+    cout << s.name << "\t"
+         << symbolTypeToString(s.type) << "\t"
+         << "ADDR=" << s.address << "\t"
+         << "SIZE=" << s.size << endl;
+  }
+
   return 0;
 }
-*/
