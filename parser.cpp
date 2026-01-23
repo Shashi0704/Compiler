@@ -30,3 +30,23 @@ private:
 
     void generateIC(const Instruction& instr);   
 };
+
+
+void Parser::generateIC(const Instruction& instr) {
+    IC ic;
+    ic.opcode = instr.opcode;
+    ic.op1 = instr.operands.size() > 0 ? instr.operands[0].value : "";
+    ic.op2 = instr.operands.size() > 1 ? instr.operands[1].value : "";
+    intermediateCode.push_back(ic);
+}
+void Parser::parseLine() {
+    if (check(INSTRUCTION)) {
+        Instruction instr = parseInstruction();
+        generateIC(instr);  
+        return;
+    }
+    advance();
+}
+
+// private function parsing
+
