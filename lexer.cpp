@@ -5,52 +5,7 @@
 #include <set>
 #include <cctype>
 #include <string>
-
 using namespace std;
-
-enum TokenType
-{
-  INSTRUCTION,
-  REGISTER,
-  DIRECTIVE,
-  IDENTIFIER,
-  NUMBER,
-  SYMBOL
-};
-
-string tokenTypeToString(TokenType t)
-{
-  switch (t)
-  {
-  case INSTRUCTION:
-    return "INSTRUCTION";
-
-  case REGISTER:
-    return "REGISTER";
-
-  case DIRECTIVE:
-    return "DIRECTIVE";
-
-  case IDENTIFIER:
-    return "IDENTIFIER";
-
-  case NUMBER:
-    return "NUMBER";
-
-  case SYMBOL:
-    return "SYMBOL";
-
-  default:
-    return "no such token";
-  }
-  return "UNKNOWN";
-};
-
-struct Token
-{
-  TokenType type;
-  string value;
-};
 
 set<string> instruction = {
     "ADD", "ADC", "SUB", "SBB", "INC", "DEC", "MUL", "IMUL", "DIV", "IDIV", "NEG", "CMP", "DAA", "DAS", "AAA", "AAS", "AAM", "AAD", "MOV", "XCHG", "XLAT", "PUSH", "POP", "IN", "OUT", "LEA", "LDS", "LES", "LAHF", "SAHF", "HLT", "NOP", "WAIT", "ESC", "LOCK", "CLC", "STC", "CMC", "CLD", "STD", "CLI", "STI", "MOVSB", "MOVSW", "CMPSB", "CMPSW", "SCASB", "SCASW", "LODSB", "LODSW", "STOSB", "STOSW", "JMP", "CALL", "RET", "JE", "JZ", "JNE", "JNZ", "JA", "JAE", "JB", "JBE", "JG", "JGE", "JL", "JLE", "JC", "JNC", "JO", "JNO", "JS", "JNS", "LOOP", "LOOPE", "LOOPNE", "JCXZ", "SHL", "SAL", "SHR", "SAR", "ROL", "ROR", "RCL", "RCR", "AND", "OR", "XOR", "NOT", "TEST"};
@@ -256,5 +211,3 @@ vector<Symbol> buildSymbolTable(const vector<Token> &tokens)
 
   return table;
 }
-
-

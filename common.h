@@ -5,33 +5,43 @@
 #include <vector>
 using namespace std;
 
-enum TokenType {
+enum TokenType
+{
     INSTRUCTION,
     REGISTER,
     DIRECTIVE,
     IDENTIFIER,
     NUMBER,
-    SYMBOL
+    SYMBOL,
+    COMMA,
+    COLON,
+    END_OF_FILE
+
 };
 
-struct Token {
+struct Token
+{
     TokenType type;
     string value;
 };
 
-struct Operand {
+struct Operand
+{
     string value;
 };
 
-struct Instruction {
+struct Instruction
+{
     string opcode;
     vector<Operand> operands;
 };
 
-struct IC {
+struct IC
+{
     string opcode;
     string op1;
     string op2;
 };
+vector<Token> lexer(const string &filename);
 
 #endif
