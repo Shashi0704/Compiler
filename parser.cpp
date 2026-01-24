@@ -28,9 +28,92 @@ private:
     vector<Operand> parseOperandList();
     Operand parseOperand();
 
-    void generateIC(const Instruction& instr);   
+    void generateIC(const Instruction& instr);
 };
 
+/* ---------------- Parser Utility Functions ---------------- */
+
+bool Parser::isAtEnd() {
+    return pos >= tokens.size();
+}
+
+Token Parser::peek() {
+    if (isAtEnd()) return Token{END, ""};
+    return tokens[pos];
+}
+
+Token Parser::advance() {
+    if (!isAtEnd()) pos++;
+    return tokens[pos - 1];
+}
+
+bool Parser::check(TokenType type, const string& value) {
+    if (isAtEnd()) return false;
+    if (tokens[pos].type != type) return false;
+    if (!value.empty() && tokens[pos].value != value) return false;
+    return true;
+}
+
+bool Parser::match(TokenType type, const string& value) {
+    if (check(type, value)) {
+        advance();
+        return true;
+    }
+    return false;
+}
+
+/* ---------------- Parsing Logic ---------------- */
+
+void Parser::parseProgram() {
+    while (!isAtEnd()) {
+        parseLine();
+    }
+}
+
+void Parser::parseLine() {
+    if (check(INSTRUCTION)) {
+        Instruction instr = parseInstruction();
+        generateIC(instr);
+    } else {
+        advance(); // skip unknown tokens
+    }
+}
+
+Instruction Parser::parseInstruction() {
+    Instruction instr;
+
+    // Opcode
+    instr.opcode = advance().value;
+
+    // Operands
+    instr.operands = parseOperandList();
+
+    return instr;
+}
+
+vector<Operand> Parser::parseOperandList() {
+    vector<Operand> ops;
+
+    while (!isAtEnd() && !check(INSTRUCTION)) {
+        if (match(COMMA)) continue;
+        ops.push_back(parseOperand());
+    }
+
+    return ops;
+}
+
+Operand Parser::parseOperand() {
+    Operand op;
+
+    if (check(REGISTER) || check(NUMBER)) {
+        op.value = advance().value;
+        return op;
+    }
+
+    throw runtime_error("Invalid operand");
+}
+
+/* ---------------- Intermediate Code Generation ---------------- */
 
 void Parser::generateIC(const Instruction& instr) {
     IC ic;
@@ -39,14 +122,3 @@ void Parser::generateIC(const Instruction& instr) {
     ic.op2 = instr.operands.size() > 1 ? instr.operands[1].value : "";
     intermediateCode.push_back(ic);
 }
-void Parser::parseLine() {
-    if (check(INSTRUCTION)) {
-        Instruction instr = parseInstruction();
-        generateIC(instr);  
-        return;
-    }
-    advance();
-}
-
-// private function parsing
-
